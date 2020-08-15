@@ -1,7 +1,7 @@
 // 入口文件 main：index.js 改成main.js
 
 // 安装webpack  安装webpack cli
-import {createElement} from './toy-react.js'
+// import {createElement} from './toy-react.js'
 import {Component} from './toy-react.js'
 import {render} from './toy-react.js'
 
