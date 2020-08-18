@@ -6,7 +6,9 @@ import {Component} from './toy-react.js'
 import {render} from './toy-react.js'
 
 class Square extends Component {
-     
+     render() {
+       return (<button className="square" onClick="{this.props.onClick">{this.props.value}</button>)
+     }
 }
   
  
@@ -126,9 +128,9 @@ class Board extends Component {
   
   // ========================================
   
-//   render(<Game />, document.getElementById("root"));
-  let game = <Game/>
-  console.log(game.vdom)
+  render(<Game />, document.getElementById("root"));
+  // let game = <Game/>
+  // console.log(game.vdom)
   function calculateWinner(squares) {
     const lines = [
       [0, 1, 2],
