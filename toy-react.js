@@ -1,4 +1,5 @@
 const RENDER_TO_DOM = Symbol("render To Dom")
+
 export class Component {
     constructor() {
         this.props = Object.create(null)
@@ -11,6 +12,10 @@ export class Component {
     setAttribute(name, value) {
         this.props[name] = value
     }
+    appendChild(component) {
+        this.children.push(component)
+    }
+
     get vdom() {
         
         return this.render().vdom
@@ -19,9 +24,6 @@ export class Component {
     // get vchildren() {
     //     return this.children.map(child => child.vdom)
     // }
-    appendChild(component) {
-        this.children.push(component)
-    }
     // 需要知道位置
     [RENDER_TO_DOM](range) {
         this._range = range
@@ -61,13 +63,22 @@ export class Component {
             // 处理children
             let newChildren = newNode.vchildren
             let oldChildren = oldNode.vchildren
-            for (let i = 0; i < newChildren.length; index++) {
+            if (!newChildren || !newChildren.length) {
+                return 
+            }
+            let tailRange = oldChildren[oldChildren.length-1]._range
+
+            for (let i = 0; i < newChildren.length; i++) {
                 let newChild = newChildren[i]
                 let oldChild = oldChildren[i]
                 if(i < oldChildren.length) {
                     update(oldChild, newChild)
                 } else {
-
+                    let range = document.createRange()
+                    range.setStart(tailRange.endContainer, tailRange.endOffset)
+                    range.setEnd(tailRange.endContainer, tailRange.endOffset)
+                    newChild[RENDER_TO_DOM](range)
+                    tailRange = range
                 }
                 
             }
@@ -129,7 +140,7 @@ class ElementWrapper extends Component{
         // this.root = document.createElement(type)
     }
     get vdom() {
-        this.vchildren = this.children.map(child, child.vdom)
+        this.vchildren = this.children.map(child=>child.vdom)
         return this
 
         // {
@@ -141,7 +152,7 @@ class ElementWrapper extends Component{
     [RENDER_TO_DOM](range) {
         this._range = range
 
-        range.deleteContents()
+        // range.deleteContents()
         let root = document.createElement(this.type)
         for (let name in this.props) {
             let value = this.props[name]
@@ -160,7 +171,7 @@ class ElementWrapper extends Component{
     
         }
         if(!this.vchildren) {
-            this.vchildren = this.children.map(child, child.vdom)
+            this.vchildren = this.children.map(child=>child.vdom)
         }
         for (let child of this.vchildren) {
             let childRange = document.createRange()
@@ -169,7 +180,8 @@ class ElementWrapper extends Component{
             child[RENDER_TO_DOM](childRange)
 
         }
-        range.insertNode(root)
+        // range.insertNode(root)
+        repalceContent(range, root)
         // this.render()[RENDER_TO_DOM](range)
     }
 /*
@@ -222,8 +234,11 @@ class TextWrapper extends Component{
     [RENDER_TO_DOM](range) {
         this._range = range
 
-        range.deleteContents()
-        range.insertNode(this.root)
+        let root = document.createTextNode(this.content)
+        replaceContent(range, root)
+
+        // range.deleteContents()
+        // range.insertNode(this.root)
         // this.render()[RENDER_TO_DOM](range)
     }
 
@@ -231,6 +246,14 @@ class TextWrapper extends Component{
 
 }
 
+function replaceContent(range, node) {
+    range.insertNode(node)
+    range.setStartAfter(node)
+    range.deleteContents()
+    range.setStartBefore(node)
+    range.setEndAfter(node)
+
+}
 
 export function createElement(type, attributes, ...children) {
     let e
