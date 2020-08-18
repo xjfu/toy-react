@@ -1,5 +1,14 @@
 const RENDER_TO_DOM = Symbol("render To Dom")
 
+function replaceContent (range, node) {
+    range.insertNode(node)
+    range.setStartAfter(node)
+    range.deleteContents()
+    range.setStartBefore(node)
+    range.setEndAfter(node)
+
+}
+
 export class Component {
     constructor() {
         this.props = Object.create(null)
@@ -84,7 +93,7 @@ export class Component {
             }
         }
         let vdom = this.vdom
-        updated(this._vdom, vdom) 
+        update(this._vdom, vdom) 
         this._vdom = vdom
     }
     /*
@@ -118,7 +127,7 @@ export class Component {
             }
         }
         merge(this.state, newState)
-        this.rerender()
+        this.update()
     }
     // get root() {
     //     if(!this._root) {
@@ -129,7 +138,6 @@ export class Component {
     
 
 }
-
 
 class ElementWrapper extends Component{
     constructor(type) {
@@ -181,37 +189,9 @@ class ElementWrapper extends Component{
 
         }
         // range.insertNode(root)
-        repalceContent(range, root)
+        replaceContent(range, root)
         // this.render()[RENDER_TO_DOM](range)
     }
-/*
-    setAttribute(name, value) {
-        if (name.match(/^on([\s\S]+)$/)) {
-            // RegExp.$1 匹配到的值
-            this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, c=>c.toLowerCase()), value)
-           
-        } else {
-            if (name === "className") {
-                this.root.setAttribute("class", value)
-            } else {
-                this.root.setAttribute(name, value)
-            }
-            // this.root.setAttribute(name, value)
-        }
-        this.root.setAttribute(name, value)
-    }
-
-    appendChild(component) {
-        let range = document.createRange()
-        range.setStart(this.root, this.root.childNodes.length)
-        range.setEnd(this.root, this.root.childNodes.length)
-        component[RENDER_TO_DOM](range)
-
-        // this.root.appendChild(component.root)
-
-    }
-    */
-    
 
 }
 
@@ -246,14 +226,6 @@ class TextWrapper extends Component{
 
 }
 
-function replaceContent(range, node) {
-    range.insertNode(node)
-    range.setStartAfter(node)
-    range.deleteContents()
-    range.setStartBefore(node)
-    range.setEndAfter(node)
-
-}
 
 export function createElement(type, attributes, ...children) {
     let e
