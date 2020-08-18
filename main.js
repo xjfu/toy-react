@@ -6,9 +6,9 @@ import {Component} from './toy-react.js'
 import {render} from './toy-react.js'
 
 class Square extends Component {
-     render() {
-       return (<button className="square" onClick="{this.props.onClick">{this.props.value}</button>)
-     }
+    render() {
+        return (<button className="square" onClick={this.props.onClick}>{this.props.value}</button>)
+    }
 }
   
  
